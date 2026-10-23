@@ -1,0 +1,24 @@
+# Artefakty kompilacji
+*.pdb
+*.obj
+*.ilk
+bin/
+obj/
+
+# Visual Studio / Rider / VS Code
+.vs/
+.idea/
+.vscode/
+*.suo
+*.user
+*.userprefs
+
+# Pliki systemowe
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# Pliki tymczasowe
+*.tmp
+*.log
+*~
