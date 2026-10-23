@@ -74,6 +74,15 @@ namespace Jasnosc
         [DllImport("dxva2.dll", SetLastError = true)]
         public static extern bool SetMonitorBrightness(IntPtr hMonitor, uint brightness);
 
+        // Niskopoziomowe komendy VCP - działają także na monitorach, które nie podają poprawnego "capabilities string".
+        public const byte VCP_BRIGHTNESS = 0x10;
+
+        [DllImport("dxva2.dll", SetLastError = true)]
+        public static extern bool GetVCPFeatureAndVCPFeatureReply(IntPtr hMonitor, byte code, IntPtr codeType, out uint current, out uint max);
+
+        [DllImport("dxva2.dll", SetLastError = true)]
+        public static extern bool SetVCPFeature(IntPtr hMonitor, byte code, uint value);
+
         [DllImport("dwmapi.dll")]
         public static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int value, int size);
 

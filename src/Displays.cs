@@ -81,14 +81,28 @@ namespace Jasnosc
 
         IntPtr handle;
         readonly uint min, max;
+        readonly bool useVcp;
         int lastCommand;
 
-        public DdcDisplay(IntPtr handle, uint min, uint max)
+        public DdcDisplay(IntPtr handle, uint min, uint max, bool useVcp)
         {
             this.handle = handle;
             this.min = min;
             this.max = max;
+            this.useVcp = useVcp;
             lastCommand = Environment.TickCount;
+        }
+
+        // Najpierw bezpośrednio VCP 0x10 (obsługuje go prawie każdy monitor z DDC/CI),
+        // dopiero potem GetMonitorBrightness, które wymaga poprawnego "capabilities string" i często zawodzi.
+        public static bool TryRead(IntPtr handle, out uint min, out uint cur, out uint max, out bool useVcp)
+        {
+            min = 0;
+            useVcp = true;
+            if (Native.GetVCPFeatureAndVCPFeatureReply(handle, Native.VCP_BRIGHTNESS, IntPtr.Zero, out cur, out max) && max > 0)
+                return true;
+            useVcp = false;
+            return Native.GetMonitorBrightness(handle, out min, out cur, out max) && max > min;
         }
 
         public override bool Set(int percent)
@@ -99,7 +113,9 @@ namespace Jasnosc
             {
                 int wait = MinGapMs - (Environment.TickCount - lastCommand);
                 if (wait > 0) Thread.Sleep(wait);
-                bool ok = Native.SetMonitorBrightness(handle, value);
+                bool ok = useVcp
+                    ? Native.SetVCPFeature(handle, Native.VCP_BRIGHTNESS, value)
+                    : Native.SetMonitorBrightness(handle, value);
                 lastCommand = Environment.TickCount;
                 if (ok)
                 {
@@ -215,16 +231,19 @@ namespace Jasnosc
                     }
 
                     uint min = 0, cur = 0, max = 0;
-                    bool ok = false;
+                    bool useVcp = false, ok = false;
                     for (int attempt = 0; attempt < 3 && !ok; attempt++)
                     {
-                        if (attempt > 0) Thread.Sleep(150);
-                        ok = Native.GetMonitorBrightness(handle, out min, out cur, out max);
+                        // Część monitorów odpowiada dopiero po dłuższej chwili (np. tuż po wybudzeniu).
+                        if (attempt > 0) Thread.Sleep(300);
+                        ok = DdcDisplay.TryRead(handle, out min, out cur, out max, out useVcp);
                     }
 
-                    if (ok && max > min)
+                    if (ok)
                     {
-                        result.Add(new DdcDisplay(handle, min, max)
+                        if (cur < min) cur = min;
+                        if (cur > max) cur = max;
+                        result.Add(new DdcDisplay(handle, min, max, useVcp)
                         {
                             Id = id,
                             Name = name,
@@ -234,7 +253,7 @@ namespace Jasnosc
                     else
                     {
                         Native.DestroyPhysicalMonitor(handle);
-                        result.Add(new DdcDisplay(IntPtr.Zero, 0, 100)
+                        result.Add(new DdcDisplay(IntPtr.Zero, 0, 100, false)
                         {
                             Id = id,
                             Name = name,
