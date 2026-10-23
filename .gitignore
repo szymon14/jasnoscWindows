@@ -22,3 +22,6 @@ desktop.ini
 *.tmp
 *.log
 *~
+
+# Zbudowany program (tworzy go build.cmd)
+*.exe

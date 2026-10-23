@@ -6,5 +6,6 @@ if not exist "%CSC%" set CSC=%WINDIR%\Microsoft.NET\Framework\v4.0.30319\csc.exe
 "%CSC%" /nologo /target:winexe /optimize+ /codepage:65001 /out:Jasnosc.exe /win32manifest:app.manifest ^
   /r:System.dll /r:System.Drawing.dll /r:System.Windows.Forms.dll /r:System.Management.dll ^
   src\*.cs
-if errorlevel 1 (echo. & echo Kompilacja NIEUDANA & exit /b 1)
+if errorlevel 1 (echo. & echo Kompilacja NIEUDANA & pause & exit /b 1)
 echo Zbudowano Jasnosc.exe
+pause

@@ -22,7 +22,7 @@ Lekka aplikacja dla Windows, która siedzi w zasobniku systemowym (obok zegara) 
 
 ## Użycie
 
-1. Uruchom `Jasnosc.exe`.
+1. Zbuduj program (patrz [Budowanie](#budowanie)) i uruchom `Jasnosc.exe`.
 2. Kliknij **lewym** przyciskiem ikonę słońca w zasobniku, aby otworzyć suwaki jasności.
 3. Kliknij **prawym** przyciskiem, aby:
    - odświeżyć listę monitorów,
@@ -37,7 +37,7 @@ Nie trzeba instalować Visual Studio ani .NET SDK — wystarczy kompilator `csc.
 build.cmd
 ```
 
-Skrypt tworzy `Jasnosc.exe` w katalogu głównym repozytorium.
+Skrypt tworzy `Jasnosc.exe` w katalogu głównym repozytorium i czeka na naciśnięcie klawisza, żeby można było przeczytać wynik. Plik `.exe` nie jest przechowywany w repozytorium — każdy buduje go sam.
 
 ## Struktura projektu
 
